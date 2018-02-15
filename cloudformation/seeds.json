@@ -1,0 +1,11 @@
+{
+  "economatic_metadata": [
+    {
+      "PutRequest": {
+        "Item": {
+          "Version": { "S": "20190219" }
+        }
+      }
+    }
+  ]
+}

@@ -1,0 +1,117 @@
+---
+Description: "Economatic: https://github.com/sampointer/economatic"
+Parameters:
+  ExecutableBucket:
+    Description: The name of the S3 bucket in which economatic.zip is stored
+    Type: String
+  ScaleUpHour:
+    Description: The hour in which ASGs will be scaled back up
+    Type: String
+    AllowedPattern: "[0-9]{1,2}"
+    ConstraintDescription: Must be a two digit number
+  ScaleUpMinute:
+    Description: The minute in which ASGs will be scaled back up
+    Type: String
+    AllowedPattern: "[0-9]{1,2}"
+    ConstraintDescription: Must be a two digit number
+  ScaleDownHour:
+    Description: The hour in which ASGs will be scaled down
+    Type: String
+    AllowedPattern: "[0-9]{1,2}"
+    ConstraintDescription: Must be a two digit number
+  ScaleDownMinute:
+    Description: The minute in which ASGs will be scaled down
+    Type: String
+    AllowedPattern: "[0-9]{1,2}"
+    ConstraintDescription: Must be a two digit number
+
+Resources:
+  economaticDataTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: Name
+          AttributeType: S
+      KeySchema:
+        - AttributeName: Name
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      TableName: economatic
+
+  economaticMetadataTable:
+    Type: "AWS::DynamoDB::Table"
+    Properties:
+      AttributeDefinitions:
+        - AttributeName: Version
+          AttributeType: S
+      KeySchema:
+        - AttributeName: Version
+          KeyType: HASH
+      ProvisionedThroughput:
+        ReadCapacityUnits: 5
+        WriteCapacityUnits: 5
+      TableName: economatic_metadata
+
+  economaticScaleUpEvent:
+    Type: "AWS::Events::Rule"
+    DependsOn: economaticLambda
+    Properties:
+      Description: Economatic Scale Up
+      ScheduleExpression: !Sub "cron(${ScaleUpMinute} ${ScaleUpHour} * * ? *)"
+      State: ENABLED
+      Targets:
+        - Id: economatic.scaleup
+          Arn: !GetAtt economaticLambda.Arn
+
+  economaticScaleDownEvent:
+    Type: "AWS::Events::Rule"
+    DependsOn: economaticLambda
+    Properties:
+      Description: Economatic Scale Down
+      ScheduleExpression: !Sub "cron(${ScaleDownMinute} ${ScaleDownHour} * * ? *)"
+      State: ENABLED
+      Targets:
+        - Id: economatic.scaledown
+          Arn: !GetAtt economaticLambda.Arn
+
+  economaticExecutionPermission:
+    Type: "AWS::Lambda::Permission"
+    DependsOn: economaticLambda
+    Properties:
+      Action: lambda:InvokeFunction
+      EventSourceToken: String
+      FunctionName: !Ref economaticLambda
+      Principal: events.amazonaws.com
+
+  economaticIAM:
+    Type: "AWS::IAM::Role"
+    Properties:
+      AssumeRolePolicyDocument: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Principal":{"Service":"lambda.amazonaws.com"},"Action":"sts:AssumeRole"}]}'
+      Policies:
+        - PolicyName: economaticLogging
+          PolicyDocument: '{"Version":"2012-10-17","Statement":[{"Action":["logs:CreateLogStream","logs:PutLogEvents","logs:CreateLogGroup"],"Resource":["arn:aws:logs:*:*:*"],"Effect":"Allow"}]}'
+        - PolicyName: economaticDynamoDB
+          PolicyDocument: '{"Version":"2012-10-17","Statement":[{"Effect":"Allow","Action":["dynamodb:PutItem","dynamodb:DeleteItem","dynamodb:GetItem","dynamodb:Scan"],"Resource":["arn:aws:dynamodb:*:*:table/economatic","arn:aws:dynamodb:*:*:table/economatic_metadata"]}]}'
+        - PolicyName: economaticAutoScaling
+          PolicyDocument: '{"Version":"2012-10-17","Statement":[{"Action":["autoscaling:DescribeAutoScalingGroups","autoscaling:UpdateAutoScalingGroup"],"Resource":["*"],"Effect":"Allow"}]}'
+
+  economaticLambda:
+    Type: "AWS::Lambda::Function"
+    Properties:
+      Code:
+        S3Bucket: !Ref ExecutableBucket
+        S3Key: economatic.zip
+      Description: Periodic auto-scale group termination service
+      Environment:
+        Variables:
+          ECONOMATIC_SCALEUP_HOUR: !Ref ScaleUpHour
+          ECONOMATIC_SCALEUP_MINUTE: !Ref ScaleUpMinute
+          ECONOMATIC_SCALEDOWN_HOUR: !Ref ScaleDownHour
+          ECONOMATIC_SCALEDOWN_MINUTE: !Ref ScaleDownMinute
+      Handler: economatic
+      MemorySize: 128
+      Role: !GetAtt economaticIAM.Arn
+      Runtime: go1.x
+      Timeout: 60
