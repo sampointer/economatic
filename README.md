@@ -12,6 +12,7 @@ It is also useful for periodically verifying DR infrastructure in distinct AWS
 accounts that might be kept in "warm storage": deployed but quiesced.
 
 ### Alternatives before you begin
+#### AWS Instance Scheduler
 Amazon have their own solution to this problem in [AWS Instance Scheduler][1].
 You should understand the differences between this and the official solution
 before implementing either.
@@ -38,6 +39,24 @@ scheduling capabilities, less state, and coarser granularity by operating at the
 regional level. In that sense it is more suited to organisations with many AWS
 accounts and a more centralized SRE or operations team seeking to enact broad
 policy.
+
+#### Auto-Scaling Group Scheduled Scaling
+[Scheduled Scaling][5] accomplishes a very similar goal to Economatic. The
+difference between the two systems is largely philosophical, and to a great
+extent political.
+
+Economatic aims to make periodic scale-downs an *aspect of the AWS account*
+rather than a property of the *things that are built in it*.
+
+In large organisations it is typical for some central body to create and
+provision AWS accounts. They may hook into consolidated billing, configure IAM
+and MFA across parent or child accounts, allocate instance reservations,
+deploy security applicances and the like. Economatic is designed to be part of
+such an arrangement.
+
+Economatic is suitable for organisations like this where it is unreasonable to
+expect every tier of every project written by every team to consider
+conditional scale-down for non-production accounts.
 
 ### What's in the box?
 This repository contains:
@@ -128,9 +147,6 @@ accounts may wish to scale down development stacks from 0300 UTC (1900 PST)
 and restore them at 0800 UTC (0000 PST) in order to save the common 5 hours
 shared idle time each day.
 
-Since AWS EC2 instances are billed per-hour economatic should be scheduled to
-run at 0255 UTC and again at 0800 UTC.
-
 ### Warm storage DR infrastructure
 If you have additional AWS accounts with deployed but quiesced DR infrastructure
 you may wish to exercise it periodically. economatic runs scheduled to
@@ -140,3 +156,4 @@ provision instances for 2 hours in a daily basis could be used.
 [2]: https://golang.org/doc/install
 [3]: https://github.com/aws/aws-lambda-go#for-developers-on-linux-and-macos
 [4]: https://github.com/sampointer/economatic/releases
+[5]: https://docs.aws.amazon.com/autoscaling/ec2/userguide/schedule_time.html
