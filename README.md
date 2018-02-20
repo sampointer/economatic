@@ -136,8 +136,11 @@ aws cloudformation create-stack --stack-name economatic --template-body file://c
 ```
 * Load in the seed values
 ```bash
-$ aws dynamodb batch-write-item --request-items file://cloudformation/seeds.json --region eu-west-2
+$ aws dynamodb batch-write-item --request-items file://cloudformation/seeds.json --region eu-west-3
 ```
+
+* Conditionally run the Lambda manually.
+When first installed economatic has no state from which to derive what it should do next. It therefore assumes that the first run should be a scale-up run. Given the lack of state this effectively means that no action will be taken. If you've created the stack during the day and intend for the first action to be a scale down that same evening execute the Lambda manually from the console. No actions will be performed and the state will be set to scale down upon the next, automatic, invocation.
 
 ## Scheduling
 
