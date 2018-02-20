@@ -1,4 +1,4 @@
-# economatic <a href="https://godoc.org/github.com/sampointer/economatic"><img src="https://godoc.org/github.com/sampointer/economatic?status.svg" alt="GoDoc"></a> <img src="https://goreportcard.com/badge/github.com/sampointer/economatic"><img align="right" src="/assets/note.png" alt="euro note" />
+# economatic [![Circle CI](https://circleci.com/gh/sampointer/economatic.svg?style=shield)](https://circleci.com/gh/sampointer/economatic) <a href="https://godoc.org/github.com/sampointer/economatic"><img src="https://godoc.org/github.com/sampointer/economatic?status.svg" alt="GoDoc"></a> <img src="https://goreportcard.com/badge/github.com/sampointer/economatic"><img align="right" src="/assets/note.png" alt="euro note" />
 
 ## Description
 Economatic is an AWS Lambda and associated infrastructure that will scale
