@@ -109,6 +109,7 @@ $ aws s3 cp ./economatic.zip s3://economatic-YOUR_ORG/economatic.zip --acl priva
 required information. A example can be found in the `cloudformation/`
 subdirectory:
 ```json
+[{"ParameterKey":"ExecutableBucket","ParameterValue":"economatic-YOUR_ORG"},{"ParameterKey":"ScaleUpHour","ParameterValue":"8"},{"ParameterKey":"ScaleUpMinute","ParameterValue":"00"},{"ParameterKey":"ScaleDownHour","ParameterValue":"19"},{"ParameterKey":"ScaleDownMinute","ParameterValue":"55"}]
 ```
 * Create the Cloudformation stack
 ```bash

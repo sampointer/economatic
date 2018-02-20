@@ -11,6 +11,7 @@ import (
 	"strings"
 )
 
+// AutoscalingGroupRecord represents an auto-scaling group when persisted
 type AutoscalingGroupRecord struct {
 	Name    string
 	Minimum int64
@@ -22,6 +23,7 @@ func (a AutoscalingGroupRecord) String() string {
 		a.Name, a.Minimum, a.Desired)
 }
 
+// Save persists an ASG to DynamoDB
 func (a AutoscalingGroupRecord) Save() error {
 	logger.Info("Storing",
 		zap.String("name", a.Name),
@@ -34,6 +36,7 @@ func (a AutoscalingGroupRecord) Save() error {
 	return err
 }
 
+// Zero sets a given ASG minimum and desired to zero
 func (a AutoscalingGroupRecord) Zero() error {
 	logger.Info("Zeroing",
 		zap.String("name", a.Name),
@@ -44,6 +47,7 @@ func (a AutoscalingGroupRecord) Zero() error {
 	return err
 }
 
+// Restore sets an ASG to the previously persisted values
 func (a AutoscalingGroupRecord) Restore() error {
 	logger.Info("Restoring",
 		zap.String("name", a.Name),
@@ -54,6 +58,7 @@ func (a AutoscalingGroupRecord) Restore() error {
 	return err
 }
 
+// Delete removes an ASG from DynamoDB
 func (a AutoscalingGroupRecord) Delete() error {
 	logger.Info("Deleting record",
 		zap.String("name", a.Name),

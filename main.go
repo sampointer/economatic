@@ -11,6 +11,7 @@ import (
 // Logging as global
 var logger, _ = zap.NewProduction()
 
+// Configuration represents the inherited environment
 // export ECONOMATIC_SCALEUP_HOUR=8
 // export ECONOMATIC_SCALEUP_MINUTE=0
 // export ECONOMATIC_SCALEDOWN_HOUR=2
@@ -22,6 +23,7 @@ type Configuration struct {
 	ScaledownMinute int `required:"true" split_words:"true"`
 }
 
+// ValidRunTime determines if an action is happening out of turn
 func (c Configuration) ValidRunTime(hour int, minute int) error {
 	now := time.Now()
 	proposed := time.Date(now.Year(),
@@ -36,9 +38,9 @@ func (c Configuration) ValidRunTime(hour int, minute int) error {
 
 	if now.After(proposed) {
 		return nil
-	} else {
-		return errors.New("Executing before scheduled time")
 	}
+
+	return errors.New("Executing before scheduled time")
 }
 
 func work() error {
