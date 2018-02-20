@@ -13,3 +13,6 @@ jobs:
 
       # specify any bash command here prefixed with `run: `
       - run: go build
+      - run: zip economatic.zip economatic
+      - run: cp economatic ${CIRCLE_ARTIFACTS}
+      - run: cp economatic.zip ${CIRCLE_ARTIFACTS}
