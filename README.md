@@ -1,4 +1,4 @@
-# economatic <img align="right" src="/assets/note.png" alt="euro note" />
+# economatic <a href="https://godoc.org/github.com/sampointer/economatic"><img src="https://godoc.org/github.com/sampointer/economatic?status.svg" alt="GoDoc"></a> <img align="right" src="/assets/note.png" alt="euro note" />
 
 ## Description
 Economatic is an AWS Lambda and associated infrastructure that will scale
